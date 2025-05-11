@@ -40,5 +40,4 @@ spec:
     app: sidecar
   ports:
   - port: 80
-    targetPort: 32107
   type: LoadBalancer
