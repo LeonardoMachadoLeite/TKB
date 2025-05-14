@@ -116,4 +116,47 @@ kubectl delete -f ./ingress/app.yml
 
 ## Chapter 9 - Wasm
 
+### Preparing tools - Rust and Spin
+
 rustup target add wasm32-wasip1
+spin new tkb-wasm -t http-rust
+    Description []: My first Wasm app
+    HTTP path [/...]: /tkb
+tree .\ /f
+spin build
+
+### Build an OCI image and push it to an OCI registry
+
+docker build --platform wasi/wasm --provenance=false -t nigelpoulton/k8sbook:wasm-0.2 .
+docker inspect nigelpoulton/k8sbook:wasm-0.2
+docker push nigelpoulton/k8sbook:wasm-0.2
+
+### Build and configure a new multi-node Kubernetes cluster for Wasm
+
+k3d cluster create wasm --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.11.1 -p "5005:80@loadbalancer" --agents 2
+kubectl get nodes
+docker exec -i k3d-wasm-agent-1 ash
+ps | grep containerd
+ls /bin | grep shim
+cat /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+containerd --config /var/lib/rancher/k3s/agent/etc/containerd/config.toml config dump | grep spin
+exit
+kubectl label nodes k3d-wasm-agent-1 wasm=yes
+kubectl get nodes --show-labeles | grep wasm=yes
+kubectl apply -f rc-spin.yml
+kubectl get runtimeclass
+
+### Deploy and test the app
+
+kubectl apply -f app.yml
+kubectl get pods -o wide
+curl http://localhost:5005/tkb
+
+### Clean up
+
+k3d cluster delete wasm
+kubectl delete -f app.yml
+kubectl delete runtimeclass rc-spin
+docker rmi nigelpouton/k8sbook:wasm-0.1
+
+## Chapter 10 - Service discovery
