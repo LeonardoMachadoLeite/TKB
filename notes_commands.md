@@ -46,7 +46,7 @@ kubectl get pods
 kubectl get deploy
 kubectl describe deploy hello-deploy
 kubectl get rs
-kubectl describe rs hello-deploy-7fd99bf846
+kubectl describe rs hello-deploy-{HASH}
 kubectl apply -f ./deployments/lb.yml
 
 ### Scaling the app
@@ -58,7 +58,7 @@ kubectl rollout status deploy hello-deploy
 
 ### Rollout and Rollback
 
-kubectl describe rs hello-deploy-7fbfb4b557
+kubectl describe rs hello-deploy-{HASH}
 kubectl rollout pause deploy hello-deploy
 kubectl rollout resume deploy hello-deploy
 kubectl rollout history deployment hello-deploy
@@ -69,3 +69,51 @@ kubectl rollout undo deployment hello-deploy --to-revision=1
 
 kubectl delete -f ./deployments/deploy.yml
 kubectl delete -f ./deployments/lb.yml
+
+## Chapter 7 - Services
+
+### Working wih Services imperatively
+
+kubectl apply -f ./services/deploy.yml
+kubectl get deploy svc-test
+kubectl expose deployment svc-test --type=LoadBalancer
+kubectl get svc -o wide
+kubectl describe svc svc-test
+kubectl delete svc svc-test
+
+### Working wih Services the declarative way
+
+kubectl apply -f ./services/lb.yml
+kubectl get svc svc-lb -o wide
+kubectl describe svc svc-lb
+kubectl get endpointslices
+kubectl describe endpointslice svc-lb-24rfg
+
+### Clean up
+
+kubectl delete -f ./services/deploy.yml ./services/lb.yml
+
+## Chapter 8 - Ingress
+
+### Intalling NGINX Ingress Controller
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+kubectl get pods -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
+
+### Configuring Ingress
+
+kubectl get ingressclass
+kubectl describe ingressclass nginx
+kubectl apply -f ./ingress/app.yml
+kubectl apply -f ./ingress/ig-all.yml
+kubectl get ing
+kubectl describe ing mcu-all
+
+### Clean up
+
+kubectl delete -f ./ingress/ig-all.yml
+kubectl delete -f ./ingress/app.yml
+
+## Chapter 9 - Wasm
+
+rustup target add wasm32-wasip1
