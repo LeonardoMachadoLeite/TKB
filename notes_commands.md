@@ -160,3 +160,86 @@ kubectl delete runtimeclass rc-spin
 docker rmi nigelpouton/k8sbook:wasm-0.1
 
 ## Chapter 10 - Service discovery
+
+kubectl get pods -n kube-system -l k8s-app=kube-dns
+kubectl get deploy -n kube-system -l k8s-app=kube-dns
+kubectl get svc -n kube-system -l k8s-app=kube-dns
+cat /etc/resolv.conf
+kubectl apply -f ./service-discovery/sd-example.yml
+kubectl get all --namespace dev
+kubectl get all --namespace prod
+kubectl exec -it jump --namespace dev -- bash
+cat /etc/resolv.conf
+apt-get update && apt-get install curl -y
+curl ent:8080
+curl ent.prod.svc.cluster.local:8080
+kubectl logs -n kube-system coredns-668d6bf9bc-7bsrh
+kubectl get svc kube-dns -n kube-system
+kubectl get endpointslice -n kube-system -l k8s-app=kube-dns
+kubectl run -it dnsutils --image registry.k8s.io/e2e-test-images/jessie-dnsutils:1.7
+nslookup kubernetes
+kubectl attach dnsutils -c dnsutils -i -t
+kubectl get svc kubernetes
+kubectl delete pod -n kube-system -l k8s-app=kube-dns
+
+### Clean up
+
+kubectl delete pod dnsutils
+kubectl delete -f ./service-discovery/sd-example.yml
+
+## Chapter 11 - Storage
+
+kubectl get sc
+kubectl describe sc standard
+kubectl get pv
+kubectl get pvc
+kubectl apply -f ./storage/lke-pvc-test.yml
+kubectl delete pvc pvc-test
+kubectl apply -f ./storage/lke-sc-wait-keep.yml
+kubectl apply -f ./storage/lke-pvc-wait-keep.yml
+kubectl apply -f ./storage/lke-app.yml
+kubectl describe pod volpod
+
+### Clean up
+
+kubectl delete pod volpod
+kubectl delete pvc pvc-wait-keep
+kubectl delete pv pvc-279f09e083254fa9
+kubectl delete sc block-wait-keep
+
+## Chapter 12 - ConfigMaps and Secrets
+
+### Configmaps
+
+kubectl create configmap testmap1 --from-literal shortname=SAFC --from-literal longname="Sunderland Association Football Club"
+kubectl describe cm testmap1
+kubectl create cm testmap2 --from-file ./configmaps/cmfile.txt
+kubectl get cm
+kubectl get cm testmap2 -o yaml
+kubectl apply -f ./configmaps/fullname.yml
+kubectl apply -f ./configmaps/singlemap.yml
+kubectl apply -f ./configmaps/podenv.yml
+kubectl exec envpod --env | grep NAME
+kubectl apply -f ./configmaps/podstartup.yml
+kubectl logs startup-pod -c args1
+kubectl describe pod startup-pod
+kubectl delete pod startup-pod
+kubectl apply -f ./configmaps/podvol.yml
+kubectl edit cm multimap
+kubectl exec cmvol -- ls /etc/name
+kubectl exec cmvol -- cat /etc/name/Country
+
+### Secrets
+
+kubectl create secret generic creds --from-literal user=nigelpouton --from-literal pwd=Password123
+kubectl get secret creds -o yaml
+kubectl apply -f ./configmaps/tkb-secret.yml
+
+### Clean up
+
+kubectl get pods
+kubectl get cm
+kubectl get secrets
+kubectl delete pods cmvol envpod secret-pod
+kubectl delete cm multimap test-config testmap1 testmap2
+kubectl delete secrets creds tkb-secret
