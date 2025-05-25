@@ -265,3 +265,8 @@ kubectl describe pod tkb-sts-0
 
 kubectl delete pvc webroot-tkb-sts-0
 kubectl delete -f ./statefulsets/sts.yml
+
+## Extra
+
+kubectl apply -f ./statefulsets/postgres.yml
+nvim %WINDIR%\System32\Drivers\Etc\Hosts
