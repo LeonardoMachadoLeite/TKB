@@ -28,7 +28,7 @@ spec:
       name: webroot
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "block"
+      storageClassName: "flash"
       resources:
         requests:
           storage: 1Gi

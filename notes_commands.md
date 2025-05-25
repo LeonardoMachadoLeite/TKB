@@ -243,3 +243,25 @@ kubectl get secrets
 kubectl delete pods cmvol envpod secret-pod
 kubectl delete cm multimap test-config testmap1 testmap2
 kubectl delete secrets creds tkb-secret
+
+## Chapter 13 - StatefulSets
+
+kubectl apply -f ./statefulsets/dd-kind-sc.yml
+kubectl get sc
+kubectl apply -f ./statefulsets/headless-svc.yml
+kubectl get svc
+kubectl apply -f ./statefulsets/sts.yml
+kubectl get sts --watch
+kubectl get pvc
+kubectl get pods
+kubectl apply -f ./statefulsets/jump-pod.yml
+kubectl exec -it jump-pod -- bash
+dig SRV dullahan.default.svc.cluster.local
+kubectl apply -f ./statefulsets/sts.yml
+kubectl get pods
+kubectl delete pod tkb-sts-0
+kubectl get pods --watch
+kubectl describe pod tkb-sts-0
+
+kubectl delete pvc webroot-tkb-sts-0
+kubectl delete -f ./statefulsets/sts.yml
